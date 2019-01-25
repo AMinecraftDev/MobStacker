@@ -3,6 +3,8 @@ package com.kiwifisher.mobstacker.listeners;
 import com.kiwifisher.mobstacker.MobStacker;
 import com.kiwifisher.mobstacker.algorithms.AlgorithmEnum;
 import com.kiwifisher.mobstacker.utils.StackUtils;
+import net.aminecraftdev.customdrops.CustomDropsAPI;
+import net.aminecraftdev.customdrops.event.CustomDropLivingEntityEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.*;
@@ -12,14 +14,32 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.material.Colorable;
 import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.scheduler.BukkitRunnable;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class MobDeathListener implements Listener {
 
     private MobStacker plugin;
 
+    private Map<UUID, Integer> multiplyAmount = new HashMap<>();
+
     public MobDeathListener(MobStacker plugin) {
         this.plugin = plugin;
+    }
+
+    @EventHandler
+    public void onCustomDrop(CustomDropLivingEntityEvent event) {
+        LivingEntity entity = event.getLivingEntity();
+
+        if(this.multiplyAmount.containsKey(entity.getUniqueId())) {
+            event.setMultiplied(this.multiplyAmount.get(entity.getUniqueId()));
+
+            this.multiplyAmount.remove(entity.getUniqueId());
+        }
     }
 
     @EventHandler (ignoreCancelled = true)
@@ -73,7 +93,13 @@ public class MobDeathListener implements Listener {
                                 magmaCube.setSize(1);
                             }
 
-                            event.getDrops().addAll(AlgorithmEnum.valueOf(entity.getType().name()).getLootAlgorithm().getRandomLoot(entity, quantity - 1));
+                            this.multiplyAmount.put(entity.getUniqueId(), quantity);
+
+                            new BukkitRunnable() {
+                                public void run() {
+                                    MobDeathListener.this.multiplyAmount.remove(entity.getUniqueId());
+                                }
+                            }.runTaskLaterAsynchronously(getPlugin(), 10L);
 
                             /*
                             If this fails, then log which entity and request it's implementation.

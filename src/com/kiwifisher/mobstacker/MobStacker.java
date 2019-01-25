@@ -197,7 +197,7 @@ public class MobStacker extends JavaPlugin {
 
         Plugin worldGuard = getServer().getPluginManager().getPlugin("WorldGuard");
 
-        if (worldGuard == null || !(worldGuard instanceof WorldGuardPlugin) || !Bukkit.getVersion().contains("1.8")) {
+        if (!(worldGuard instanceof WorldGuardPlugin) || !Bukkit.getVersion().contains("1.8")) {
             return null;
         }
 

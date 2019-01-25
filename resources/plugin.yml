@@ -3,6 +3,7 @@ main: com.kiwifisher.mobstacker.MobStacker
 author: KiwiFisher
 version: 2.0.0
 softdepend: [WorldGuard, mcMMO]
+depend: [CustomDrops]
 commands:
   mobstacker:
     permission-message: You don't have access to that command!
